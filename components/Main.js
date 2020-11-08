@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 import { constants } from "../constants"
-import { unixConverter } from "../scripts"
+import { GetDates, unixConverter } from "../scripts"
 import { DayItem } from './DayItem';
 
 export default function LocationComp({ setStatus, setPeriod }) {
@@ -24,7 +24,7 @@ export default function LocationComp({ setStatus, setPeriod }) {
   const [dayTime, setDayTime] = useState("")
   const [humidity, setHumidity] = useState("")
   const [pressure, setPressure] = useState("")
-  const [dayId, setDayId] = useState("")
+  const [dates, setDates] = useState("")
   const [dayItems, setDayItems] = useState([])
 
   useEffect(() => {
@@ -60,6 +60,7 @@ useEffect(() => {
         setLatitude(latitude => location.coords.latitude)
     setLongitude(longitude => location.coords.longitude)
     setDescription(responseJson.weather[0].description)
+    setStatus(description)
     setCity(responseJson.name)
     setTemp(Math.ceil(responseJson.main.temp))
     setFeelsLike(responseJson.main.feels_like)
@@ -79,65 +80,43 @@ useEffect(() => {
 } 
 async function get5DaysData() {
   try {
-    let response = 
+    let response =
     await fetch(
-      `http://api.openweathermap.org/data/2.5/forecast?q=Moscow&units=metric&appid=2e356aefbd53857048281362b509db4a`);
+      `http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&&units=metric&&lang=ru&appid=2e356aefbd53857048281362b509db4a`);
     let responseJson = await response.json();
     if(location) {
       let array = responseJson.list
-      getNameOfDay(array)
+      var startDate = new Date();
+      setDates(GetDates(startDate, 5))
     for(let i = 0; i < array.length / 8; i++) {
       array = array.slice(i * 8,(i + 1) * 16)
-      console.log(array)
-      setDayItems(array.map(a => <DayItem temp={a.main.temp} feelsLike={a.main.feels_like} />))
+      for(let j =1; j < array.length; j++) {
+        array[j].date = dates[j]
+      }
+      setDayItems(array.map(a => <DayItem data={a} temp={a.main.temp} feelsLike={a.main.feels_like} key={Math.random().toString()}
+         description={a.weather[0].description} temp_min={a.main.temp_min} temp_max={a.main.temp_max} date={a.date}
+        wind={a.wind.speed} humidity={a.main.humidity} pressure={a.main.pressure * 0.75}
+         sunRise={a.sys.sunrise} sunSet={a.sys.sunset} />))
     }
     }
   } catch (error) {
     console.error(error);
   }
 }
-
-const getNameOfDay = (array) => {
-  let dateObj = new Date()
-  let dayName = dateObj.toLocaleString("default", {weekday: "long"})
-  setNameOfDay(nameOfDay)
-  switch(dayName) {
-    case "Понедельник":
-      array[0].dayName = "Вторник"
-      setDayId(2)
-      case "Вторник":
-        setDayId(3)
-      array[0].dayName = "Среда"
-      case "Среда":
-        setDayId(4)
-      array[0].dayName = "Четверг"
-      setDayId(5)
-      case "Четверг" :
-        setDayId(5)
-      array[0].dayName = "Пятница"
-      case "Пятница" :
-        setDayId(6)
-      array[0].dayName = "суббота"
-      case "Суббота" :
-        setDayId(7)
-      array[0].dayName = "Воскресенье"
-      case "Воскресенье" :
-        setDayId(1)
-      array[0].dayName = "Понедельник"
-      default:
-        array[0].dayName = "Вторник"
-  }
-}
   return (
     <View style={styles.container}>
-      <Text style={styles.nameOfDay} >{nameOfDay && nameOfDay} </Text>
+      {
+        location
+        ?
+        <View>
+          <Text style={styles.nameOfDay} >{nameOfDay && nameOfDay} </Text>
       <Text style={styles.temp} onPress={() => console.log(description)}>{location && temp}°</Text>
       <View style={styles.rowContainer}>
       <Text style={styles.temp_info} >Ощущается как: {location && feelsLike}°</Text>
       </View>
       <Text style={styles.city} >{city} </Text>
       <Text style={styles.description} >{location && description}</Text>
-      <ScrollView>
+      <ScrollView alwaysBounceVertical={true} >
       <Text style={styles.info} >Скорость ветра: 
       <Text style={styles.temp_info} >{wind}м/с </Text>
       </Text>
@@ -160,10 +139,15 @@ const getNameOfDay = (array) => {
        <Text style={styles.info} >
         Давление: <Text style={styles.temp_info} >{pressure} мм. рт. ст.</Text>
        </Text>
+       <Text style={styles.city} >Прогноз на 5 дней:</Text>
        {
          dayItems
        }
       </ScrollView>
+        </View>
+        :
+        <Text>Waiting...</Text>
+      }
     </View>
   );
 }
