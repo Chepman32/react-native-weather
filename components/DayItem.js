@@ -1,34 +1,7 @@
 import React, { useState } from "react"
-import { ScrollView, StyleSheet, Text, View } from "react-native"
+import { ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native"
 export const DayItem = ({data, currentDay, temp, feelsLike, city, description, wind, sunRise, sunSet,
-   temp_min, temp_max, humidity, pressure, date}) => {
-     const [nameOfDay, setNameOfDay] = useState("")
-    const getNameOfDay = (array) => {
-      switch(currentDay) {
-        case "Понедельник":
-          setNameOfDay("Вторник")
-          case "Вторник":
-            setNameOfDay("Вторник")
-          case "Среда":
-            setDayId(4)
-          array[0].dayName = "Четверг"
-          setDayId(5)
-          case "Четверг" :
-            setDayId(5)
-          array[0].dayName = "Пятница"
-          case "Пятница" :
-            setDayId(6)
-          array[0].dayName = "суббота"
-          case "Суббота" :
-            setDayId(7)
-          array[0].dayName = "Воскресенье"
-          case "Воскресенье" :
-            setDayId(1)
-          array[0].dayName = "Понедельник"
-          default:
-            array[0].dayName = "Вторник"
-      }
-    }
+   temp_min, temp_max, humidity, pressure, date, time}) => {
     function GetDates(startDate, daysToAdd) {
       var aryDates = [];
   
@@ -121,22 +94,23 @@ function DayAsString(dayIndex) {
 var startDate = new Date();
 
   return (
-    <View style={styles.container}>
+    <TouchableWithoutFeedback>
+      <View style={styles.container} >
       <Text style={styles.nameOfDay} >{date} </Text>
-      <Text style={styles.temp} onPress={() => console.log(GetDates(startDate, 5))}>{temp}°</Text>
+      <Text style={styles.nameOfDay} >{time} </Text>
+      <Text style={styles.temp} >{temp}°</Text>
       <View style={styles.rowContainer}>
-      <Text style={styles.temp_info} >Ощущается как: {feelsLike}°</Text>
+      <Text style={styles.temp_info} onPress={() => console.log(data)} >Ощущается как: {feelsLike}°</Text>
       </View>
-      <Text style={styles.city} >{city} </Text>
-      <Text style={styles.description} >{description}</Text>
+      <Text style={styles.description} >{data.description}</Text>
       <ScrollView>
       <Text style={styles.info} >Скорость ветра: 
       <Text style={styles.temp_info} >{wind}м/с </Text>
       </Text>
         <Text style={styles.info} >Восход: 
-        &nbsp;<Text style={styles.temp_info} >{sunRise}</Text> </Text>
+        &nbsp;<Text style={styles.temp_info} >{data.sunRise}</Text> </Text>
         <Text style={styles.info} >Закат:
-        &nbsp;<Text style={styles.temp_info} >{sunSet}</Text>
+        &nbsp;<Text style={styles.temp_info} >{data.sunSet}</Text>
          </Text>
         <Text style={styles.info} >
           Минимальная температура воздуха:
@@ -155,6 +129,7 @@ var startDate = new Date();
       </ScrollView>
       <View style={styles.horizontalLine}></View>
     </View>
+    </TouchableWithoutFeedback>
   )
 }
 const styles = StyleSheet.create({

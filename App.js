@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import LocationComp from './components/Main';
+import { WeatherApiCom } from './components/WeatherApiCom';
 
 export default function App() {
   const [status, setStatus] = useState("")
@@ -46,6 +47,9 @@ export default function App() {
   if(status === "ясно" && period === "night" || status === "Clear" && period === "night") {
     image.uri = "https://pbs.twimg.com/media/DEZlBqjXcAErN8Z.jpg"
   }
+  if(status === "облачно с прояснениями") {
+    image.uri = "https://novostipmr.com/sites/default/files/field/image/202005/20201505236.jpg"
+  }
   const imageSelecter = () => {
     switch(status) {
       case "light rain":
@@ -59,9 +63,8 @@ export default function App() {
   }
   return (
     <View style={styles.container}>
-      <ImageBackground source={image} style={styles.image}> 
-      <LocationComp setStatus={setStatus} setPeriod={setPeriod} />
-      <StatusBar style="auto" />
+      <ImageBackground source={image} style={styles.container} >
+      <LocationComp setPeriod={setPeriod} setStatus={setStatus}/>
       </ImageBackground>
     </View>
   );

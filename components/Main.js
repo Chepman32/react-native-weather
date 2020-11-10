@@ -4,6 +4,8 @@ import * as Location from 'expo-location';
 import { constants } from "../constants"
 import { GetDates, unixConverter } from "../scripts"
 import { DayItem } from './DayItem';
+import { WeatherApiCom } from './WeatherApiCom';
+import { WeatherStack } from './WeatherStack';
 
 export default function LocationComp({ setStatus, setPeriod }) {
   const [longitude, setLongitude] = useState(null)
@@ -15,7 +17,6 @@ export default function LocationComp({ setStatus, setPeriod }) {
   const [temp_min, setTemp_min] = useState("")
   const [temp_max, setTemp_max] = useState("")
   const [description, setDescription] = useState("")
-  const [items, setItems] = useState([])
   const [nameOfDay, setNameOfDay] = useState("")
   const [city, setCity] = useState("")
   const [wind, setWind] = useState("")
@@ -42,7 +43,6 @@ useEffect(() => {
   getData()
   setPeriod(dayTime)
   setStatus(description)
-  get5DaysData()
 }, [])
   let text = 'Waiting..';
   if (errorMsg) {
@@ -82,22 +82,23 @@ async function get5DaysData() {
   try {
     let response =
     await fetch(
-      `http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&&units=metric&&lang=ru&appid=2e356aefbd53857048281362b509db4a`);
+      `http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&&units=metric&&lang=ru&appid=2e356aefbd53857048281362b509db4a`
+      );
     let responseJson = await response.json();
+    var startDate = new Date();
     if(location) {
       let array = responseJson.list
-      var startDate = new Date();
       setDates(GetDates(startDate, 5))
-    for(let i = 0; i < array.length / 8; i++) {
-      array = array.slice(i * 8,(i + 1) * 16)
-      for(let j =1; j < array.length; j++) {
-        array[j].date = dates[j]
-      }
-      setDayItems(array.map(a => <DayItem data={a} temp={a.main.temp} feelsLike={a.main.feels_like} key={Math.random().toString()}
-         description={a.weather[0].description} temp_min={a.main.temp_min} temp_max={a.main.temp_max} date={a.date}
-        wind={a.wind.speed} humidity={a.main.humidity} pressure={a.main.pressure * 0.75}
-         sunRise={a.sys.sunrise} sunSet={a.sys.sunset} />))
-    }
+      let startTime = 0
+    console.log(array.length)
+    const n = 3 //tweak this to add more items per line
+
+const result = new Array(Math.ceil(array.length / n))
+  .fill()
+  .map(_ => array.splice(0, n))
+const items = result.map(r => <DayItem data={r[0]} />)
+console.log(result[0][2].main.temp)
+setDayItems(result.map(r => <DayItem data={r[0]}/>))
     }
   } catch (error) {
     console.error(error);
@@ -109,14 +110,15 @@ async function get5DaysData() {
         location
         ?
         <View>
-          <Text style={styles.nameOfDay} >{nameOfDay && nameOfDay} </Text>
+          
+      <ScrollView alwaysBounceVertical={true} >
+      <Text style={styles.nameOfDay} >{nameOfDay && nameOfDay} </Text>
       <Text style={styles.temp} onPress={() => console.log(description)}>{location && temp}°</Text>
       <View style={styles.rowContainer}>
       <Text style={styles.temp_info} >Ощущается как: {location && feelsLike}°</Text>
       </View>
       <Text style={styles.city} >{city} </Text>
       <Text style={styles.description} >{location && description}</Text>
-      <ScrollView alwaysBounceVertical={true} >
       <Text style={styles.info} >Скорость ветра: 
       <Text style={styles.temp_info} >{wind}м/с </Text>
       </Text>
@@ -139,10 +141,8 @@ async function get5DaysData() {
        <Text style={styles.info} >
         Давление: <Text style={styles.temp_info} >{pressure} мм. рт. ст.</Text>
        </Text>
-       <Text style={styles.city} >Прогноз на 5 дней:</Text>
-       {
-         dayItems
-       }
+       <WeatherApiCom latitude={latitude} longitude={longitude} />
+       <WeatherStack latitude={latitude} longitude={longitude} />
       </ScrollView>
         </View>
         :
@@ -161,13 +161,14 @@ const styles = StyleSheet.create({
     marginTop: 50,
     fontSize: 40,
     fontWeight: "600",
+    textAlign: "center",
     lineHeight: 40,
     color: "#E7C689"
   },
   temp: {
-    marginTop: 20,
-    fontSize: 120,
+    fontSize: 90,
     fontWeight: "300",
+    textAlign: "center",
     color: "tomato"
   },
   temp_info: {
@@ -187,6 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "600",
     lineHeight: 40,
+    textAlign: "center",
     color: "#E7C689"
   },
   row: {
@@ -201,5 +203,5 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     textAlign: "center",
     color: "#789DD9"
-  }
+  } 
 });
