@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native"
+import { Shake } from "./Shake"
 export const WeatherApiCom = ({ latitude, longitude }) => {
   useEffect(() => {
     getData()
@@ -18,6 +19,7 @@ setWind_dir(data.current.wind_dir)
 setWind_degree(data.current.wind_degree)
 setPrecip_mm(data.current.precip_mm)
 setuv(data.current.uv)
+console.log(data)
   }
   return (
     <TouchableWithoutFeedback>
@@ -26,7 +28,7 @@ setuv(data.current.uv)
         Направление ветра: <Text style={styles.temp_info} >{wind_dir}</Text>
        </Text>
        <Text style={styles.info} onPress={() => console.log(wind_dir)} >
-        Направление ветра в градусах: <Text style={styles.temp_info} >{wind_degree}</Text>
+        Направление ветра в градусах: <Text style={styles.temp_info} >{wind_degree}</Text> 
        </Text>
        <Text style={styles.info} >
         Количество осадков, мм: <Text style={styles.temp_info} >{precip_mm}</Text>

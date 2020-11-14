@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import * as Font from "expo-font"
+import { AppLoading } from "expo"
 import LocationComp from './components/Main';
-import { WeatherApiCom } from './components/WeatherApiCom';
-
 export default function App() {
+  const [isReady, setIsready] = useState(false)
   const [status, setStatus] = useState("")
   const [period, setPeriod] = useState("")
   const image = { uri: "" };
@@ -61,6 +62,18 @@ export default function App() {
       default: image.uri = ""
     }
   }
+  async function loadApp() {
+    await Font.loadAsync({
+      "roboto-regular": require("./assets/fonts/Roboto-Regular.ttf"),
+      "roboto-bold": require("./assets/fonts/Roboto-Bold.ttf"),
+      "roboto-mediumItalic": require("./assets/fonts/Roboto-MediumItalic.ttf")
+    })
+  }
+  if(!isReady) {
+    return (
+      <AppLoading startAsync={loadApp} onFinish={() => setIsready(true)}/>
+    )
+  }
   return (
     <View style={styles.container}>
       <ImageBackground source={image} style={styles.container} >
@@ -74,6 +87,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 50,
     flex: 1,
+    width: "100%",
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',

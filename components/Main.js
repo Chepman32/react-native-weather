@@ -6,6 +6,8 @@ import { GetDates, unixConverter } from "../scripts"
 import { DayItem } from './DayItem';
 import { WeatherApiCom } from './WeatherApiCom';
 import { WeatherStack } from './WeatherStack';
+import { Weatherbit } from './Weatherbit';
+import { styles } from '../styles';
 
 export default function LocationComp({ setStatus, setPeriod }) {
   const [longitude, setLongitude] = useState(null)
@@ -27,6 +29,8 @@ export default function LocationComp({ setStatus, setPeriod }) {
   const [pressure, setPressure] = useState("")
   const [dates, setDates] = useState("")
   const [dayItems, setDayItems] = useState([])
+  const [sea_level, setSea_level] = useState("")
+  const [units, setUnits] = useState("")
 
   useEffect(() => {
     (async () => {
@@ -41,8 +45,8 @@ export default function LocationComp({ setStatus, setPeriod }) {
   }, []);
 useEffect(() => {
   getData()
+  location && setStatus(description)
   setPeriod(dayTime)
-  setStatus(description)
 }, [])
   let text = 'Waiting..';
   if (errorMsg) {
@@ -63,7 +67,7 @@ useEffect(() => {
     setStatus(description)
     setCity(responseJson.name)
     setTemp(Math.ceil(responseJson.main.temp))
-    setFeelsLike(responseJson.main.feels_like)
+    setFeelsLike(Math.ceil(responseJson.main.feels_like))
     setTemp_min(responseJson.main.temp_min)
     setTemp_max(responseJson.main.temp_max)
     setSunRise(unixConverter(responseJson.sys.sunrise))
@@ -71,7 +75,8 @@ useEffect(() => {
     setWind(responseJson.wind.speed)
     setDayTime(responseJson.weather[0].icon[responseJson.weather[0].icon.length - 1] === "n" ? "night" : "day")
     setHumidity(responseJson.main.humidity)
-    setPressure(responseJson.main.pressure * 0.75)
+    setPressure(responseJson.main.grnd_level * 0.75)
+    setSea_level(responseJson.main.sea_level)
       }
   } 
   catch (error) {
@@ -89,7 +94,6 @@ async function get5DaysData() {
     if(location) {
       let array = responseJson.list
       setDates(GetDates(startDate, 5))
-      let startTime = 0
     console.log(array.length)
     const n = 3 //tweak this to add more items per line
 
@@ -127,81 +131,24 @@ setDayItems(result.map(r => <DayItem data={r[0]}/>))
         <Text style={styles.info} >Закат:
         &nbsp;<Text style={styles.temp_info} >{sunSet}</Text>
          </Text>
-        <Text style={styles.info} >
-          Минимальная температура воздуха:
-          <Text style={styles.temp_info} >{location && temp_min}°</Text>
-        </Text>
-        <Text style={styles.info} >
-        Максимальная температура воздуха:
-          <Text style={styles.temp_info} >{location && temp_max}°</Text>
-        </Text>
       <Text style={styles.info} >
         Влажность: <Text style={styles.temp_info} >{humidity}%</Text>
        </Text>
        <Text style={styles.info} >
-        Давление: <Text style={styles.temp_info} >{pressure} мм. рт. ст.</Text>
+        Атмосферное давление: <Text style={styles.temp_info} >{pressure} мм. рт. ст.</Text>
+       </Text>
+       <Text style={styles.info} >
+        Давление над уровнем моря: <Text style={styles.temp_info} >{sea_level * 0.75} мм. рт. ст.</Text>
        </Text>
        <WeatherApiCom latitude={latitude} longitude={longitude} />
        <WeatherStack latitude={latitude} longitude={longitude} />
+       <Weatherbit latitude={latitude} longitude={longitude}/>
       </ScrollView>
         </View>
         :
-        <Text>Waiting...</Text>
+        <Text>{text} </Text>
       }
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center"
-  },
-  city: {
-    marginTop: 50,
-    fontSize: 40,
-    fontWeight: "600",
-    textAlign: "center",
-    lineHeight: 40,
-    color: "#E7C689"
-  },
-  temp: {
-    fontSize: 90,
-    fontWeight: "300",
-    textAlign: "center",
-    color: "tomato"
-  },
-  temp_info: {
-    fontSize: 30,
-    fontWeight: "600",
-    color: "tomato"
-  },
-  nameOfDay: {
-    marginTop: 20,
-    fontSize: 50,
-    fontWeight: "400",
-    color: "#fff"
-  },
-  description: {
-    marginTop: 50,
-    marginBottom: 30,
-    fontSize: 40,
-    fontWeight: "600",
-    lineHeight: 40,
-    textAlign: "center",
-    color: "#E7C689"
-  },
-  row: {
-    flexDirection: "row",
-  },
-  info: {
-    justifyContent: "flex-end",
-    marginTop: 20,
-    marginBottom: 20,
-    fontSize: 30,
-    fontWeight: "400",
-    lineHeight: 40,
-    textAlign: "center",
-    color: "#789DD9"
-  } 
-});

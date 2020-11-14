@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from "react"
-import { View, Text, StyleSheet } from "react-native"
-export const WeatherStack = ({ latitude, longitude }) => {
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native"
+import { Shake } from "./Shake"
+export const Weatherbit = ({ latitude, longitude }) => {
   useEffect(() => {
     getData()
   }, [])
-  const [visibility, setVisibility] = useState("")
-  const [cloudcover, setCloudcover] = useState("")
+  const [solar_rad, setSolar_rad] = useState("")
   const  getData = async () => {
 const response = await fetch(
-  `http://api.weatherstack.com/current?access_key=1c253991522a6597f01d63112a6d0737&query=${latitude},${longitude}`
+  `http://api.weatherbit.io/v2.0/current?lat=${latitude}&lon=${longitude}&key=073b5017a9cb4c43bd27c37347fa18ac`
 )
 const data = await response.json()
-console.log(latitude)
-setVisibility(data.current.visibility)
-setCloudcover(data.current.cloudcover)
+latitude && setSolar_rad(data.data[0].solar_rad)
   }
   return (
     <View style={styles.container} >
-      <Text style={styles.info} onPress={() => console.log(visibility)} > 
-        Видимость: <Text style={styles.temp_info} >{visibility} км</Text>
-       </Text>
-       <Text style={styles.info} onPress={() => console.log(visibility)} > 
-        Облачность: <Text style={styles.temp_info} >{cloudcover}%</Text>
+      <Text style={styles.info} onPress={() => console.log(solar_rad)} >
+        Солнечная радиация: <Text style={styles.temp_info} >{solar_rad}, Вт/м2 </Text>
        </Text>
     </View>
   )
@@ -46,7 +41,7 @@ const styles = StyleSheet.create({
     color: "tomato"
   },
   temp_info: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "600",
     color: "tomato"
   },
@@ -72,7 +67,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     marginTop: 20,
     marginBottom: 20,
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "400",
     lineHeight: 40,
     textAlign: "center",
