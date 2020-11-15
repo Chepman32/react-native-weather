@@ -31,7 +31,6 @@ export default function LocationComp({ setStatus, setPeriod }) {
   const [dayItems, setDayItems] = useState([])
   const [sea_level, setSea_level] = useState("")
   const [units, setUnits] = useState("")
-
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestPermissionsAsync();
@@ -45,8 +44,8 @@ export default function LocationComp({ setStatus, setPeriod }) {
   }, []);
 useEffect(() => {
   getData()
-  location && setStatus(description)
-  setPeriod(dayTime)
+  setBckgrnd()
+  getDayName()
 }, [])
   let text = 'Waiting..';
   if (errorMsg) {
@@ -54,7 +53,21 @@ useEffect(() => {
   } else if (location) {
     text = JSON.stringify(location);
   }
-  async function getData() {
+  function getDayName() {
+    var d = new Date();
+  var weekday = new Array(7);
+  weekday[0] = "Воскресенье";
+  weekday[1] = "Понедельник";
+  weekday[2] = "Вторник";
+  weekday[3] = "Среда";
+  weekday[4] = "Четверг";
+  weekday[5] = "Пятница";
+  weekday[6] = "Суббота";
+
+  var n = weekday[d.getDay()];
+  setNameOfDay(n)
+  } 
+   async function getData() {
     try {
     let response = 
     await fetch(
@@ -64,7 +77,6 @@ useEffect(() => {
         setLatitude(latitude => location.coords.latitude)
     setLongitude(longitude => location.coords.longitude)
     setDescription(responseJson.weather[0].description)
-    setStatus(description)
     setCity(responseJson.name)
     setTemp(Math.ceil(responseJson.main.temp))
     setFeelsLike(Math.ceil(responseJson.main.feels_like))
@@ -82,32 +94,16 @@ useEffect(() => {
   catch (error) {
     console.error(error);
   }
-} 
-async function get5DaysData() {
-  try {
-    let response =
-    await fetch(
-      `http://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&&units=metric&&lang=ru&appid=2e356aefbd53857048281362b509db4a`
-      );
-    let responseJson = await response.json();
-    var startDate = new Date();
-    if(location) {
-      let array = responseJson.list
-      setDates(GetDates(startDate, 5))
-    console.log(array.length)
-    const n = 3 //tweak this to add more items per line
-
-const result = new Array(Math.ceil(array.length / n))
-  .fill()
-  .map(_ => array.splice(0, n))
-const items = result.map(r => <DayItem data={r[0]} />)
-console.log(result[0][2].main.temp)
-setDayItems(result.map(r => <DayItem data={r[0]}/>))
-    }
-  } catch (error) {
-    console.error(error);
+}
+async function setBckgrnd() {
+  if(latitude && longitude) {
+    await setStatus(description)
+  await setPeriod(dayTime)
   }
 }
+useEffect(() => {
+  setBckgrnd()
+}, [latitude, longitude])
   return (
     <View style={styles.container}>
       {
@@ -116,8 +112,8 @@ setDayItems(result.map(r => <DayItem data={r[0]}/>))
         <View>
           
       <ScrollView alwaysBounceVertical={true} >
-      <Text style={styles.nameOfDay} >{nameOfDay && nameOfDay} </Text>
-      <Text style={styles.temp} onPress={() => console.log(description)}>{location && temp}°</Text>
+      <Text style={styles.nameOfDay} >{nameOfDay} </Text>
+      <Text style={styles.temp} onPress={() => console.log(nameOfDay)}>{location && temp}°</Text>
       <View style={styles.rowContainer}>
       <Text style={styles.temp_info} >Ощущается как: {location && feelsLike}°</Text>
       </View>

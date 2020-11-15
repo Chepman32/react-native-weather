@@ -1,10 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Platform, StyleSheet, TouchableNativeFeedback, TouchableOpacity, View, Dimensions, SafeAreaView } from 'react-native';
 import * as Font from "expo-font"
 import { AppLoading } from "expo"
+import { Ionicons } from '@expo/vector-icons';
 import LocationComp from './components/Main';
+const { width, height } = Dimensions.get("window")
 export default function App() {
+  useEffect(() => {
+    imageSelecter()
+  }, [])
   const [isReady, setIsready] = useState(false)
   const [status, setStatus] = useState("")
   const [period, setPeriod] = useState("")
@@ -59,9 +64,12 @@ export default function App() {
       image.uri = "https://www.goodfreephotos.com/albums/sky-and-clouds/clouds-on-a-mostly-clear-sky.jpg"
         case "broken clouds":
       image.uri = "https://i1.wp.com/centrefor.wales/wp-content/uploads/2020/04/adi-constantin-C8Z5DvtWQMw-unsplash.jpg?resize=1080%2C675&ssl=1"
+      case "облачно с прояснениями":
+      image.uri = "https://i1.wp.com/centrefor.wales/wp-content/uploads/2020/04/adi-constantin-C8Z5DvtWQMw-unsplash.jpg?resize=1080%2C675&ssl=1"
       default: image.uri = ""
     }
   }
+  const Wrapper = Platform.OS === "android" ? TouchableNativeFeedback : TouchableOpacity
   async function loadApp() {
     await Font.loadAsync({
       "roboto-regular": require("./assets/fonts/Roboto-Regular.ttf"),
@@ -77,6 +85,12 @@ export default function App() {
   return (
     <View style={styles.container}>
       <ImageBackground source={image} style={styles.container} >
+        <Wrapper onPress={() => console.log("pressed")} style={styles.btn} >
+          <View>
+          <Ionicons name="ios-settings" size = {64} color = "#F2965B" >
+        </Ionicons>
+          </View>
+        </Wrapper>
       <LocationComp setPeriod={setPeriod} setStatus={setStatus}/>
       </ImageBackground>
     </View>
@@ -85,7 +99,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 50,
+    paddingTop: width >= 1920 ? height * 0.01 : height * 0.03,
     flex: 1,
     width: "100%",
     backgroundColor: '#fff',
@@ -97,5 +111,10 @@ const styles = StyleSheet.create({
     width: "100%",
     resizeMode: "cover",
     justifyContent: "center"
+  },
+  btn: {
+    position: "absolute",
+    top: 10,
+    right: 40
   }
 });

@@ -14,8 +14,7 @@ var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
 return formattedTime
 }
-
-export function GetDates(startDate, daysToAdd) {
+function GetDates(startDate, daysToAdd) {
   var aryDates = [];
 
   for(var i = 0; i <= daysToAdd; i++) {
@@ -71,3 +70,4 @@ for(var i = 0; i <= daysToAdd; i++) {
 
 return aryDates;
 }
+

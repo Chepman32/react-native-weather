@@ -1,33 +1,42 @@
-const { StyleSheet } = require("react-native");
+const { StyleSheet, Dimensions } = require("react-native");
+const { width, height } = Dimensions.get("window")
 export const styles = StyleSheet.create({
   container: {
+    width: width,
     flex: 1,
     alignItems: "center"
   },
-  city: {
-    marginTop: 50,
-    fontSize: 40,
-    fontWeight: "600",
+  nameOfDay: {
+    marginTop: height * 0.06,
+    marginHorizontal: 20,
+    fontSize: 50,
+    fontWeight: "400",
     textAlign: "center",
-    lineHeight: 40,
-    color: "#E7C689"
+    color: "#fff",
+    backgroundColor: "#rgba(0, 0, 0, 0.1)",
+    borderRadius: 50
   },
   temp: {
-    fontSize: 90,
+    marginTop: height * 0.04,
+    fontSize: height * 0.11,
     textAlign: "center",
-    fontFamily:" roboto-mediumItalic",
+    fontFamily:"roboto-regular",
     color: "tomato"
+  },
+  city: {
+    marginTop: height * 0.1,
+    fontSize: height * 0.06,
+    textAlign: "center",
+    lineHeight: 40,
+    fontFamily:"roboto-mediumItalic",
+    color: "#E7C689"
   },
   temp_info: {
     fontSize: 25,
     fontWeight: "600",
+    fontFamily:"roboto-bold",
+    textAlign: "center",
     color: "tomato"
-  },
-  nameOfDay: {
-    marginTop: 20,
-    fontSize: 50,
-    fontWeight: "400",
-    color: "#fff"
   },
   description: {
     marginTop: 50,
@@ -49,7 +58,7 @@ export const styles = StyleSheet.create({
     fontWeight: "400",
     lineHeight: 40,
     textAlign: "center",
-    fontFamily:"roboto-bold",
+    fontFamily:"roboto-regular",
     color: "#789DD9"
   } 
 });
